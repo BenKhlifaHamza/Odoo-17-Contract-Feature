@@ -1,0 +1,25 @@
+# Odoo Invoicing Module Enhancement: Customers Contracts
+
+This fueature is a modified version of the OCA Contract module for Odoo 17.0. It facilitates the automatic creation of recurring invoices at defined intervals.
+
+
+This module was cloned from [the original GitHub repository](https://github.com/OCA/contract/tree/17.0/contract) and adjusted to meet specific requirements. Changes include:
+
+This enhancement for the Odoo Invoicing module adds functionality to manage customer contracts. It allows for the creation and management of contracts associated with specific customers.
+
+## Changes Made
+
+- Bug fixes from the original module.
+- Addition of extra features to fulfill specific needs.
+- Adjustments to align with internal company processes.
+
+## Installation
+
+This enhancement will be integrated into the existing Invoicing module of your Odoo instance. There is no separate installation required.
+
+## Usage
+
+1. Navigate to the Invoicing application in Odoo.
+2. Access the "Customers Contracts" section to manage customer contracts.
+3. Create new contracts, associate them with specific customers, and manage contract details as needed.
+
