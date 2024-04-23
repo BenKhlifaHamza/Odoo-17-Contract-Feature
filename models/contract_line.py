@@ -36,7 +36,8 @@ class ContractLine(models.Model):
     #Old Line => currency_id = fields.Many2one(related="contract_id.currency_id")
     currency_id = fields.Many2one(related="contract_id.pricelist_id.currency_id")
     date_start = fields.Date(required=True)
-    date_end = fields.Date(compute="_compute_date_end", store=True, readonly=False)
+    #Old Line => date_end = fields.Date(compute="_compute_date_end", store=True, readonly=False)
+    date_end = fields.Date(related='contract_id.date_end', store=True, readonly=True) # <= New Line 
     termination_notice_date = fields.Date(
         compute="_compute_termination_notice_date",
         store=True,

@@ -44,6 +44,7 @@
                         invisible="not create_invoice_visibility and generation_type != 'invoice'"
                         string="Create invoices"
                         groups="base.group_no_one"
+                        active = "1"
                     />
                     <button
                         name="action_terminate_contract"
