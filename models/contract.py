@@ -242,17 +242,21 @@ class ContractContract(models.Model):
     def _get_computed_currency(self):
         """Helper method for returning the theoretical computed currency."""
         self.ensure_one()
-        currency = self.env["res.currency"]
-        if any(self.contract_line_ids.mapped("automatic_price")):
-            # Use pricelist currency
-            currency = (
-                self.pricelist_id.currency_id
-                or self.partner_id.with_company(
-                    self.company_id
-                ).property_product_pricelist.currency_id
-            )
+        #Old Line =>currency = self.env["res.currency"]
+        #Old Line =>if any(self.contract_line_ids.mapped("automatic_price")):
+        #Old Line =>    # Use pricelist currency
+        #Old Line =>    currency = (
+        #Old Line =>        self.pricelist_id.currency_id
+        #Old Line =>        or self.partner_id.with_company(
+        #Old Line =>            self.company_id
+        #Old Line =>        ).property_product_pricelist.currency_id
+        #Old Line =>    )
         #Old Line => return currency or self.journal_id.currency_id or self.company_id.currency_id
-        return currency
+        currency = (
+            self.pricelist_id.currency_id                             # <= New Line
+            or self.partner_id.property_product_pricelist.currency_id # <= New Line
+            )                                                         # <= New Line
+        return currency                                               # <= New Line
         
 
     @api.depends(
@@ -354,28 +358,25 @@ class ContractContract(models.Model):
         deletion ensures that any errant lines that are created are also
         deleted.
         """
-        for contract in self:
-            contract_template = contract.contract_template_id
-            if not contract_template:
-                continue
-
-            # Update fields based on template
-            for field_name, field in contract_template._fields.items():
-                if field_name == "contract_line_ids":
-                    lines = contract._convert_contract_lines(contract_template)
-                    contract.contract_line_ids = [(5, 0, 0)]  # Clear existing lines
-                    contract.contract_line_ids = [(0, 0, line_vals) for line_vals in lines]
-                elif not any(
-                    (
-                        field.compute,
-                        field.related,
-                        field.automatic,
-                        field.readonly,
-                        field.company_dependent,
-                        field_name in self.NO_SYNC,
-                    )
-                ):
-                    contract[field_name] = contract_template[field_name]
+        contract_template_id = self.contract_template_id
+        if not contract_template_id:
+            return
+        for field_name, field in contract_template_id._fields.items():
+            if field.name == "contract_line_ids":
+                lines = self._convert_contract_lines(contract_template_id)
+                self.contract_line_ids += lines
+            elif not any(
+                (
+                    field.compute,
+                    field.related,
+                    field.automatic,
+                    field.readonly,
+                    field.company_dependent,
+                    field.name in self.NO_SYNC,
+                )
+            ):
+                if self.contract_template_id[field_name]:
+                    self[field_name] = self.contract_template_id[field_name]
 
 
     @api.onchange("partner_id", "company_id")
@@ -395,18 +396,6 @@ class ContractContract(models.Model):
             self.payment_term_id = partner.property_payment_term_id
         self.invoice_partner_id = self.partner_id.address_get(["invoice"])["invoice"]
 
-#    def _convert_contract_lines(self, contract_template):
-#        new_lines = []
-#        for contract_line in contract_template.contract_line_ids:
-#            if contract_line._name == "contract.template.line":
-#                vals = {
-#                    'product_id': contract_line.product_id.id,
-#                    'name': contract_line.name,
-#                    'quantity': contract_line.quantity,
-#                    'price_unit': contract_line.price_unit,
-#                }
-#                new_lines.append(vals)
-#        return new_lines
     
     def _convert_contract_lines(self, contract):
         self.ensure_one()

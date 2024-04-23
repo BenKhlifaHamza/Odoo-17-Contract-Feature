@@ -30,6 +30,7 @@ class ContractAbstractContractLine(models.AbstractModel):
         domain="[('category_id', '=', product_uom_category_id)]",
     )
     automatic_price = fields.Boolean(
+        default = True, # <= New Line
         string="Auto-price?",
         help="If this is marked, the price will be obtained automatically "
         "applying the pricelist to the product. If not, you will be "

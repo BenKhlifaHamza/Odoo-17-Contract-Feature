@@ -91,7 +91,7 @@ class ContractRecurrencyMixin(models.AbstractModel):
     )
     last_date_invoiced = fields.Date(readonly=True, copy=False)
 
-    @api.depends("next_period_date_start")
+    @api.depends("next_period_date_start",)
     def _compute_recurring_next_date(self):
         for rec in self:
             rec.recurring_next_date = self.get_next_invoice_date(
@@ -237,3 +237,10 @@ class ContractRecurrencyMixin(models.AbstractModel):
                 days=recurring_invoicing_offset
             )
         return recurring_next_date
+
+
+    @api.onchange("recurring_interval","recurring_rule_type")   # <= New Line 
+    def _onchange_is_auto_renew(self):                          # <= New Line
+        print("==============================================") # <= New Line
+        print(self.recurring_interval)                          # <= New Line
+        print(self.recurring_rule_type)                         # <= New Line
